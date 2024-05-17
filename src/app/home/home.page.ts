@@ -12,6 +12,7 @@ import { Product } from '../models/product';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { OpenFoodFactService } from '../services/open-food-fact-service.service';
+import { IndexedDbService } from '../services/index-db.service';
 
 @Component({
   selector: 'app-home',
@@ -20,8 +21,6 @@ import { OpenFoodFactService } from '../services/open-food-fact-service.service'
 })
 export class HomePage implements OnInit {
   public formGroup = new UntypedFormGroup({
-    formats: new UntypedFormControl([]),
-    lensFacing: new UntypedFormControl(LensFacing.Back),
     googleBarcodeScannerModuleInstallState: new UntypedFormControl(0),
     googleBarcodeScannerModuleInstallProgress: new UntypedFormControl(0),
   });
@@ -31,6 +30,7 @@ export class HomePage implements OnInit {
   scannedProducts: Product[] = [];
 
   constructor(
+    private indexedDbService: IndexedDbService,
     private openfoodfactservice: OpenFoodFactService,
     private toastController: ToastController,
     private router: Router,
@@ -40,8 +40,10 @@ export class HomePage implements OnInit {
   ) {}
 
   public ngOnInit(): void {
+    this.loadProductsFromDatabase();
     BarcodeScanner.removeAllListeners().then(() => {
       BarcodeScanner.addListener(
+        //on installe le module googlebarcodescanner
         'googleBarcodeScannerModuleInstallProgress',
         (event) => {
           this.ngZone.run(() => {
@@ -58,13 +60,11 @@ export class HomePage implements OnInit {
   }
 
   public async startScan(): Promise<void> {
-    const formats = this.formGroup.get('formats')?.value || [];
-    const lensFacing = LensFacing.Back;
     const element = await this.dialogService.showModal({
       component: ModalComponent,
-      // Set `visibility` to `visible` to show the modal (see `src/theme/variables.scss`)
       showBackdrop: false,
       componentProps: {
+        //EAN_13 = code barre
         formats: 'EAN_13',
       },
     });
@@ -83,33 +83,40 @@ export class HomePage implements OnInit {
 
   async getProductInfo(barcode: string): Promise<void> {
     try {
-      const produit = await this.openfoodfactservice.getProductInfo(barcode);
-      console.log(produit);
-      if (produit.identifiant == '0') {
-        this.presentToast(
-          "Ce produit n'a pas été trouvé, code barre = " + barcode
-        );
-        this.playNotFoundSound();
-      } else if (
-        this.scannedProducts.some(
-          (prod) => prod.identifiant == produit.identifiant
-        )
-      ) {
+        //on cherche si il existe déjà un produit avec cet id en mémoire
+      const existant = this.scannedProducts.filter(
+        (t) => t.identifiant == barcode
+      );
+      if (existant.length!=0) {
         this.presentToast('Ce produit a déjà été scanné');
         this.playAlreadyScanned();
-        this.afficherDetail(produit);
+        this.afficherDetail(existant[0]);
       } else {
-        this.scannedProducts.push(produit);
-        this.afficherDetail(produit);
-        this.playSuccessSound();
+              //appel à 'api openfoodfacts
+        const produit = await this.openfoodfactservice.getProductInfo(barcode);
+        console.log(produit);
+        //pour les produits non trouvé, l'id est set à 0
+        if (produit.identifiant == '0') {
+          this.presentToast(
+            "Ce produit n'a pas été trouvé, code barre = " + barcode
+          );
+          this.playNotFoundSound();
+        } else {
+          this.scannedProducts.push(produit);
+          this.indexedDbService.addData('myObjectStore',produit);
+          this.afficherDetail(produit);
+          this.playSuccessSound();
+        }
       }
     } catch (error) {
+      //si quelque chose se passe mal (api qui fonctionne pas, pas internet etc..)
       console.error(
         "Une erreur s'est produite lors de la récupération des informations du produit :",
         error
       );
       this.presentToast(
-        "Une erreur s'est produite lors de la récupération des informations du produit, il est possible que l'API OpenFoodFact soit momentanément indisponible");
+        "Une erreur s'est produite lors de la récupération des informations du produit, il est possible que l'API OpenFoodFact soit momentanément indisponible"
+      );
     }
   }
 
@@ -134,15 +141,27 @@ export class HomePage implements OnInit {
     audio.play();
   }
 
+  //redirection vers la page de détail des produits
   afficherDetail(product: Product) {
     this.router.navigate(['/product-detail'], { state: { product } });
   }
 
+  //Permet d'afficher un bandeau en bas de l'écran avec un message pendant 4 secondes
   async presentToast(message: string) {
     const toast = await this.toastController.create({
       message: message,
       duration: 4000,
     });
     toast.present();
+  }
+  
+  async loadProductsFromDatabase() {
+    try {
+      await this.indexedDbService.openDb();
+      const products = await this.indexedDbService.getAllData('myObjectStore');
+      this.scannedProducts = products;
+    } catch (error) {
+      console.error('Error loading products from database:', error);
+    }
   }
 }

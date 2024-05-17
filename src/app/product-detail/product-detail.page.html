@@ -1,17 +1,18 @@
-<ion-content>
-  <ion-list>
-    <ion-item>
-      <ion-thumbnail slot="start">
-        <img [src]="product.image" alt="Product Image" />
-      </ion-thumbnail>
-      <ion-label>
-        <h2>{{ product.nameFr }}</h2>
-        <p>Marque: {{ product.brand }}</p>
-        <p *ngIf="product.score !== undefined">Score: {{ product.score }}</p>
-        <p *ngIf="product.allergenes !== undefined">
-          Allergènes: {{ product.allergenes}}
-        </p>
-      </ion-label>
-    </ion-item>
-  </ion-list>
-</ion-content>
+
+  <ion-content>
+    <ion-list>
+      <ion-item class="custom-item">
+        <ion-thumbnail slot="start">
+          <img [src]="product.image" alt="Product Image" />
+        </ion-thumbnail>
+        <ion-label>
+          <h2>{{ product.nameFr }}</h2>
+          <p>Marque: {{ product.brand }}</p>
+          <p *ngIf="product.score !== undefined">Score: {{ product.score }}/100</p>
+          <p *ngIf="product.allergenes !== undefined">
+            Allergènes: {{ product.allergenes}}
+          </p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>

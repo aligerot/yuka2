@@ -1,0 +1,11 @@
+.custom-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  ion-thumbnail {
+    width: 200px; /* Ajustez la largeur selon vos besoins */
+    height: auto;
+    margin-bottom: 20px;
+  }

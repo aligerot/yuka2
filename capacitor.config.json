@@ -1,7 +1,6 @@
 {
   "appId": "io.ionic.starter",
   "appName": "yuka2",
-  "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",
   "plugins": {},

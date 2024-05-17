@@ -19,7 +19,7 @@ export class OpenFoodFactService {
           if (data.status == 1) {
             scannedProduct.identifiant = data.product._id;
             scannedProduct.brand = data.product.brands;
-            scannedProduct.image = data.product.image_front_small_url;
+            scannedProduct.image = data.product.image_url;
             scannedProduct.allergenes = data.product.allergens_imported;
             scannedProduct.score = data.product.ecoscore_score;
             scannedProduct.nameFr = data.product.product_name_fr;

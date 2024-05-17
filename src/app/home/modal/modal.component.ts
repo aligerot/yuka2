@@ -23,23 +23,17 @@ import { DialogService } from 'src/app/services/dialog.service';
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.scss'],
 })
-export class ModalComponent implements AfterViewInit, OnDestroy {
+export class ModalComponent implements OnDestroy {
   @Input()
   public formats: BarcodeFormat[] = [];
-
-  @ViewChild('square')
-  public squareElement: ElementRef<HTMLDivElement> | undefined;
 
   constructor(
     private readonly dialogService: DialogService,
     private readonly ngZone: NgZone
   ) {}
 
-  public ngAfterViewInit(): void {
-    // No need for setTimeout, startScan() will be called in ngOnInit()
-  }
-
   public ngOnDestroy(): void {
+    //si on quitte la modal, on arrete le scan
     this.stopScan();
   }
 
@@ -49,16 +43,14 @@ export class ModalComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  public async toggleTorch(): Promise<void> {
-    await BarcodeScanner.toggleTorch();
-  }
 
   public async ngOnInit(): Promise<void> {
     await this.startScan();
   }
 
   private async startScan(): Promise<void> {
-    // Hide everything behind the modal
+
+    //on active l'affichage de la camera
     document.querySelector('body')?.classList.add('barcode-scanning-active');
 
     const options: StartScanOptions = {
@@ -68,6 +60,7 @@ export class ModalComponent implements AfterViewInit, OnDestroy {
 
     const listener = await BarcodeScanner.addListener(
       'barcodeScanned',
+      //lorsque le code barre est scanné, on ferme la modal
       async (event) => {
         this.ngZone.run(() => {
           listener.remove();
@@ -75,14 +68,13 @@ export class ModalComponent implements AfterViewInit, OnDestroy {
         });
       }
     );
-
+    
     await BarcodeScanner.startScan(options);
   }
 
   private async stopScan(): Promise<void> {
-    // Show everything behind the modal again
+    //on désactive l'affichage de la caméra
     document.querySelector('body')?.classList.remove('barcode-scanning-active');
-
     await BarcodeScanner.stopScan();
   }
 }
