@@ -2,27 +2,27 @@ import { Injectable, OnInit } from '@angular/core';
 import { Product } from '../models/product';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class IndexedDbService {
   private db!: IDBDatabase;
 
-  constructor() { }
+  constructor() {}
 
   async openDb() {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open('myDatabase', 1);
-      
+
       request.onerror = () => {
         console.error('Failed to open database');
         reject(request.error);
       };
-      
+
       request.onsuccess = () => {
         this.db = request.result;
         resolve(undefined);
       };
-      
+
       request.onupgradeneeded = (event) => {
         const db = (event.target as any).result;
         db.createObjectStore('myObjectStore', { keyPath: 'identifiant' });
@@ -30,12 +30,15 @@ export class IndexedDbService {
     });
   }
 
-  async getObjectStore(storeName: string, mode: IDBTransactionMode = 'readonly') {
+  async getObjectStore(
+    storeName: string,
+    mode: IDBTransactionMode = 'readonly'
+  ) {
     const transaction = this.db.transaction(storeName, mode);
     return transaction.objectStore(storeName);
   }
 
-  async addData(storeName: string, data:Product) {
+  async addData(storeName: string, data: Product) {
     const objectStore = await this.getObjectStore(storeName, 'readwrite');
     const request = objectStore.add(data);
     return new Promise((resolve, reject) => {
@@ -43,7 +46,6 @@ export class IndexedDbService {
       request.onerror = () => reject(request.error);
     });
   }
-
 
   async getAllData(storeName: string): Promise<Product[]> {
     try {
@@ -64,6 +66,4 @@ export class IndexedDbService {
       throw error;
     }
   }
-  
-
 }

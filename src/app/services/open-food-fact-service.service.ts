@@ -14,7 +14,6 @@ export class OpenFoodFactService {
     return new Promise<Product>((resolve, reject) => {
       this.http.get(`${this.apiUrl}${barcode}.json`).subscribe(
         async (data: any) => {
-          console.log(data);
           const scannedProduct = new Product();
           if (data.status == 1) {
             scannedProduct.identifiant = data.product._id;

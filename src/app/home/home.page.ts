@@ -83,18 +83,17 @@ export class HomePage implements OnInit {
 
   async getProductInfo(barcode: string): Promise<void> {
     try {
-        //on cherche si il existe déjà un produit avec cet id en mémoire
+      //on cherche si il existe déjà un produit avec cet id en mémoire
       const existant = this.scannedProducts.filter(
         (t) => t.identifiant == barcode
       );
-      if (existant.length!=0) {
+      if (existant.length != 0) {
         this.presentToast('Ce produit a déjà été scanné');
         this.playAlreadyScanned();
         this.afficherDetail(existant[0]);
       } else {
-              //appel à 'api openfoodfacts
+        //appel à 'api openfoodfacts
         const produit = await this.openfoodfactservice.getProductInfo(barcode);
-        console.log(produit);
         //pour les produits non trouvé, l'id est set à 0
         if (produit.identifiant == '0') {
           this.presentToast(
@@ -103,7 +102,7 @@ export class HomePage implements OnInit {
           this.playNotFoundSound();
         } else {
           this.scannedProducts.push(produit);
-          this.indexedDbService.addData('myObjectStore',produit);
+          this.indexedDbService.addData('myObjectStore', produit);
           this.afficherDetail(produit);
           this.playSuccessSound();
         }
@@ -154,7 +153,7 @@ export class HomePage implements OnInit {
     });
     toast.present();
   }
-  
+
   async loadProductsFromDatabase() {
     try {
       await this.indexedDbService.openDb();

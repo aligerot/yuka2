@@ -13,8 +13,8 @@ import { ProductDetailPage } from './product-detail.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    ProductDetailPageRoutingModule
+    ProductDetailPageRoutingModule,
   ],
-  declarations: [ProductDetailPage]
+  declarations: [ProductDetailPage],
 })
 export class ProductDetailPageModule {}

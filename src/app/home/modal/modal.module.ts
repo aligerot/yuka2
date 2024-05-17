@@ -7,6 +7,6 @@ import { ModalComponent } from './modal.component'; // Adjust the path as needed
 @NgModule({
   declarations: [ModalComponent],
   imports: [CommonModule, IonicModule],
-  exports: [ModalComponent]
+  exports: [ModalComponent],
 })
 export class ModalModule {}

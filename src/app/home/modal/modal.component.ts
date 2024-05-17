@@ -15,7 +15,6 @@ import {
   Barcode,
   StartScanOptions,
 } from '@capacitor-mlkit/barcode-scanning';
-import { InputCustomEvent } from '@ionic/angular';
 import { DialogService } from 'src/app/services/dialog.service';
 
 @Component({
@@ -43,13 +42,11 @@ export class ModalComponent implements OnDestroy {
     });
   }
 
-
   public async ngOnInit(): Promise<void> {
     await this.startScan();
   }
 
   private async startScan(): Promise<void> {
-
     //on active l'affichage de la camera
     document.querySelector('body')?.classList.add('barcode-scanning-active');
 
@@ -68,7 +65,7 @@ export class ModalComponent implements OnDestroy {
         });
       }
     );
-    
+
     await BarcodeScanner.startScan(options);
   }
 

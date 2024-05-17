@@ -16,10 +16,10 @@
           class="product-item"
         >
           <img [src]="product.image" class="product-image" />
-          <ion-label class="product-label"
-            >{{ product.brand }}</ion-label
+          <ion-label class="product-label">{{ product.brand }}</ion-label>
+          <ion-label *ngIf="product.score" class="product-label"
+            >Score: {{product.score}}</ion-label
           >
-          <ion-label *ngIf="product.score" class="product-label">Score: {{product.score}}</ion-label>
         </ion-item>
       </ion-col>
     </ion-row>
